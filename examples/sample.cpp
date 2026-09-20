@@ -1,6 +1,18 @@
 #include <iostream>
 using namespace std;
 
+class Student
+{
+public:
+    string name;
+    int marks;
+};
+
+struct College
+{
+    string name;
+    int students;
+};
 // Function to calculate grade
 int calculateGrade(int marks)
 {
