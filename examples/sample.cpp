@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std;
 
+// Function to calculate grade
 int calculateGrade(int marks)
 {
     if (marks >= 90)
@@ -23,6 +24,7 @@ int calculateGrade(int marks)
 
 int main()
 {
+    // Get marks from user
     int marks;
 
     cout << "Enter marks: ";
