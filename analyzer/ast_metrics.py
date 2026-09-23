@@ -104,12 +104,17 @@ def analyze_functions(root):
             nesting_depth = calculate_nesting_depth(node)
 
             start_line = node.start_point[0] + 1
+            end_line = node.end_point[0] + 1
+
+            function_lines = end_line - start_line + 1
 
             functions.append({
                 "name": function_name,
+                "start_line": start_line,
+                "end_line": end_line,
+                "lines": function_lines,
                 "complexity": complexity,
-                "nesting_depth": nesting_depth,
-                "start_line": start_line
+                "nesting_depth": nesting_depth
             })
 
         for child in node.children:

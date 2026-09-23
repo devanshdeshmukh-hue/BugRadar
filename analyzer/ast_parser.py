@@ -1,6 +1,7 @@
-
 from tree_sitter import Language, Parser
 import tree_sitter_cpp
+
+from analyzer.code_reader import read_file
 
 from analyzer.ast_metrics import (
     count_functions,
@@ -22,13 +23,19 @@ from analyzer.ast_metrics import (
     generate_analysis_report
 )
 
-from analyzer.code_reader import read_file
 
+# ==========================================
+# TREE-SITTER C++ LANGUAGE SETUP
+# ==========================================
 
 CPP_LANGUAGE = Language(tree_sitter_cpp.language())
 
 parser = Parser(CPP_LANGUAGE)
 
+
+# ==========================================
+# PARSE C++ CODE
+# ==========================================
 
 def parse_code(code):
     tree = parser.parse(code.encode("utf-8"))
@@ -36,94 +43,150 @@ def parse_code(code):
     return tree
 
 
-def print_ast(node, level=0):
-    indentation = "  " * level
+# ==========================================
+# ANALYZE C++ CODE
+# ==========================================
 
-    print(indentation + node.type)
+def analyze_code(code):
+    tree = parse_code(code)
 
-    for child in node.children:
-        print_ast(child, level + 1)
+    root = tree.root_node
 
+    report = generate_analysis_report(root)
+
+    return report
+
+
+# ==========================================
+# MAIN PROGRAM
+# ==========================================
 
 file_path = "examples/sample.cpp"
 
 code = read_file(file_path)
-tree = parse_code(code)
-root = tree.root_node
-report = generate_analysis_report(root)
+
+report = analyze_code(code)
+
+
+# ==========================================
+# DISPLAY BUGRADAR REPORT
+# ==========================================
 
 print()
-print("================================")
-print("       BUGRADAR AST METRICS")
-print("================================")
+
+print("========================================")
+print("          BUGRADAR AST REPORT")
+print("========================================")
+
+
+# ==========================================
+# SYNTAX ERRORS
+# ==========================================
 
 print()
 
-print("Functions:", count_functions(root))
-print("If Statements:", count_if_statements(root))
-print("For Loops:", count_for_loops(root))
-print("While Loops:", count_while_loops(root))
-print("Return Statements:", count_return_statements(root))
-print("Maximum Nesting Depth:", calculate_nesting_depth(root))
-print("Cyclomatic Complexity:", calculate_cyclomatic_complexity(root))
-print("Classes:", count_classes(root))
-print("Structs:", count_structs(root))
-print("Function Calls:", count_function_calls(root))
-print("Variable Declarations:", count_variable_declarations(root))
-print("Syntax Errors:", count_syntax_errors(root))
+print("Syntax Errors:", report["syntax_errors"])
 
 
-functions = analyze_functions(root)
-function_calls = analyze_function_calls(root)
-
+# ==========================================
+# GENERAL METRICS
+# ==========================================
 
 print()
+
+print("Metrics")
+print("----------------------------------------")
+
+for metric, value in report["metrics"].items():
+    print(metric, ":", value)
+
+
+# ==========================================
+# FUNCTION ANALYSIS
+# ==========================================
+
+print()
+
 print("Function Analysis")
-print("--------------------------------")
+print("----------------------------------------")
 
-for function in functions:
+for function in report["functions"]:
+
     print()
-    print("Function:", function["name"])
-    print("Start Line:", function["start_line"])
-    print("Cyclomatic Complexity:", function["complexity"])
-    print("Nesting Depth:", function["nesting_depth"])
 
-classes = analyze_classes(root)
+    print("Function:", function["name"])
+
+    print("Start Line:", function["start_line"])
+
+    print("End Line:", function["end_line"])
+
+    print("Lines:", function["lines"])
+
+    print(
+        "Cyclomatic Complexity:",
+        function["complexity"]
+    )
+
+    print(
+        "Nesting Depth:",
+        function["nesting_depth"]
+    )
+
+
+# ==========================================
+# CLASS / STRUCT ANALYSIS
+# ==========================================
 
 print()
-print("Class / Struct Analysis")
-print("--------------------------------")
 
-for item in classes:
+print("Class / Struct Analysis")
+print("----------------------------------------")
+
+for item in report["classes"]:
+
     print()
+
     print("Type:", item["type"])
+
     print("Name:", item["name"])
+
     print("Start Line:", item["start_line"])
 
-calls = analyze_function_calls(root)
+
+# ==========================================
+# FUNCTION CALL ANALYSIS
+# ==========================================
 
 print()
-print("Function Calls Analysis")
-print("--------------------------------")
 
-for call in calls:
+print("Function Calls")
+print("----------------------------------------")
+
+for call in report["calls"]:
+
     print("Called Function:", call)
 
-variables = analyze_variable_declarations(root)
+
+# ==========================================
+# VARIABLE ANALYSIS
+# ==========================================
 
 print()
-print("Variable Analysis")
-print("--------------------------------")
 
-for variable in variables:
+print("Variable Analysis")
+print("----------------------------------------")
+
+for variable in report["variables"]:
+
     print("Variable:", variable)
 
-print()
-print("================================")
-print("       STRUCTURED REPORT")
-print("================================")
 
-print(report)
+# ==========================================
+# END OF REPORT
+# ==========================================
 
 print()
-print("================================")
+
+print("========================================")
+print("       END OF BUGRADAR REPORT")
+print("========================================")
