@@ -1,3 +1,7 @@
+# ==========================================
+# BASIC AST NODE COUNTING
+# ==========================================
+
 def count_node_type(node, node_type):
     count = 0
 
@@ -9,6 +13,10 @@ def count_node_type(node, node_type):
 
     return count
 
+
+# ==========================================
+# BASIC AST METRICS
+# ==========================================
 
 def count_functions(root):
     return count_node_type(root, "function_definition")
@@ -29,6 +37,11 @@ def count_while_loops(root):
 def count_return_statements(root):
     return count_node_type(root, "return_statement")
 
+
+# ==========================================
+# NESTING DEPTH
+# ==========================================
+
 def calculate_nesting_depth(node, current_depth=0):
     max_depth = current_depth
 
@@ -44,12 +57,20 @@ def calculate_nesting_depth(node, current_depth=0):
             max_depth = current_depth
 
     for child in node.children:
-        child_depth = calculate_nesting_depth(child, current_depth)
+        child_depth = calculate_nesting_depth(
+            child,
+            current_depth
+        )
 
         if child_depth > max_depth:
             max_depth = child_depth
 
     return max_depth
+
+
+# ==========================================
+# CYCLOMATIC COMPLEXITY
+# ==========================================
 
 def calculate_cyclomatic_complexity(node):
     complexity = 1
@@ -76,7 +97,15 @@ def calculate_cyclomatic_complexity(node):
 
     return complexity
 
+
+# ==========================================
+# FIND IDENTIFIER
+# ==========================================
+
 def find_identifier(node):
+    if node is None:
+        return None
+
     if node.type == "identifier":
         return node.text.decode("utf-8")
 
@@ -89,21 +118,78 @@ def find_identifier(node):
     return None
 
 
+# ==========================================
+# FUNCTION PARAMETER COUNT
+# ==========================================
+
+def count_function_parameters(node):
+    declarator = node.child_by_field_name("declarator")
+
+    if declarator is None:
+        return 0
+
+    parameter_list = None
+
+    def find_parameter_list(current_node):
+        nonlocal parameter_list
+
+        if current_node.type == "parameter_list":
+            parameter_list = current_node
+            return
+
+        for child in current_node.children:
+
+            if parameter_list is None:
+                find_parameter_list(child)
+
+    find_parameter_list(declarator)
+
+    if parameter_list is None:
+        return 0
+
+    count = 0
+
+    for child in parameter_list.children:
+
+        if child.type == "parameter_declaration":
+            count += 1
+
+    return count
+
+
+# ==========================================
+# FUNCTION ANALYSIS
+# ==========================================
+
 def analyze_functions(root):
     functions = []
 
     def visit(node):
+
         if node.type == "function_definition":
 
-            declarator = node.child_by_field_name("declarator")
+            declarator = node.child_by_field_name(
+                "declarator"
+            )
 
-            function_name = find_identifier(declarator)
+            function_name = find_identifier(
+                declarator
+            )
 
-            complexity = calculate_cyclomatic_complexity(node)
+            complexity = calculate_cyclomatic_complexity(
+                node
+            )
 
-            nesting_depth = calculate_nesting_depth(node)
+            nesting_depth = calculate_nesting_depth(
+                node
+            )
+
+            parameter_count = count_function_parameters(
+                node
+            )
 
             start_line = node.start_point[0] + 1
+
             end_line = node.end_point[0] + 1
 
             function_lines = end_line - start_line + 1
@@ -113,6 +199,7 @@ def analyze_functions(root):
                 "start_line": start_line,
                 "end_line": end_line,
                 "lines": function_lines,
+                "parameters": parameter_count,
                 "complexity": complexity,
                 "nesting_depth": nesting_depth
             })
@@ -124,23 +211,47 @@ def analyze_functions(root):
 
     return functions
 
+
+# ==========================================
+# CLASS / STRUCT DETECTION
+# ==========================================
+
 def count_classes(root):
-    return count_node_type(root, "class_specifier")
+    return count_node_type(
+        root,
+        "class_specifier"
+    )
 
 
 def count_structs(root):
-    return count_node_type(root, "struct_specifier")
+    return count_node_type(
+        root,
+        "struct_specifier"
+    )
+
+
+# ==========================================
+# CLASS / STRUCT ANALYSIS
+# ==========================================
 
 def analyze_classes(root):
     classes = []
 
     def visit(node):
-        if node.type in ["class_specifier", "struct_specifier"]:
 
-            name_node = node.child_by_field_name("name")
+        if node.type in [
+            "class_specifier",
+            "struct_specifier"
+        ]:
+
+            name_node = node.child_by_field_name(
+                "name"
+            )
 
             if name_node is not None:
-                name = name_node.text.decode("utf-8")
+                name = name_node.text.decode(
+                    "utf-8"
+                )
             else:
                 name = "anonymous"
 
@@ -148,7 +259,11 @@ def analyze_classes(root):
 
             classes.append({
                 "name": name,
-                "type": "class" if node.type == "class_specifier" else "struct",
+                "type": (
+                    "class"
+                    if node.type == "class_specifier"
+                    else "struct"
+                ),
                 "start_line": start_line
             })
 
@@ -159,19 +274,34 @@ def analyze_classes(root):
 
     return classes
 
+
+# ==========================================
+# FUNCTION CALL DETECTION
+# ==========================================
+
 def count_function_calls(root):
-    return count_node_type(root, "call_expression")
+    return count_node_type(
+        root,
+        "call_expression"
+    )
+
 
 def analyze_function_calls(root):
     calls = []
 
     def visit(node):
+
         if node.type == "call_expression":
 
-            function_node = node.child_by_field_name("function")
+            function_node = node.child_by_field_name(
+                "function"
+            )
 
             if function_node is not None:
-                function_name = function_node.text.decode("utf-8")
+
+                function_name = (
+                    function_node.text.decode("utf-8")
+                )
 
                 calls.append(function_name)
 
@@ -182,28 +312,47 @@ def analyze_function_calls(root):
 
     return calls
 
+
+# ==========================================
+# VARIABLE DECLARATION DETECTION
+# ==========================================
+
 def count_variable_declarations(root):
-    return count_node_type(root, "declaration")
+    return count_node_type(
+        root,
+        "declaration"
+    )
+
 
 def analyze_variable_declarations(root):
     variables = []
 
     def visit(node):
+
         if node.type == "declaration":
 
             for child in node.children:
 
                 if child.type == "init_declarator":
-                    name_node = child.child_by_field_name("declarator")
+
+                    name_node = child.child_by_field_name(
+                        "declarator"
+                    )
 
                     if name_node is not None:
+
                         variables.append(
-                            name_node.text.decode("utf-8")
+                            name_node.text.decode(
+                                "utf-8"
+                            )
                         )
 
                 elif child.type == "identifier":
+
                     variables.append(
-                        child.text.decode("utf-8")
+                        child.text.decode(
+                            "utf-8"
+                        )
                     )
 
         for child in node.children:
@@ -213,10 +362,16 @@ def analyze_variable_declarations(root):
 
     return variables
 
+
+# ==========================================
+# SYNTAX ERROR DETECTION
+# ==========================================
+
 def count_syntax_errors(root):
     error_count = 0
 
     def visit(node):
+
         nonlocal error_count
 
         if node.type == "ERROR":
@@ -232,23 +387,46 @@ def count_syntax_errors(root):
 
     return error_count
 
+
+# ==========================================
+# COMPLETE STRUCTURED ANALYSIS REPORT
+# ==========================================
+
 def generate_analysis_report(root):
 
     report = {
+
         "syntax_errors": count_syntax_errors(root),
 
         "metrics": {
+
             "functions": count_functions(root),
+
             "if_statements": count_if_statements(root),
+
             "for_loops": count_for_loops(root),
+
             "while_loops": count_while_loops(root),
+
             "return_statements": count_return_statements(root),
+
             "classes": count_classes(root),
+
             "structs": count_structs(root),
+
             "function_calls": count_function_calls(root),
-            "variable_declarations": count_variable_declarations(root),
-            "max_nesting_depth": calculate_nesting_depth(root),
-            "cyclomatic_complexity": calculate_cyclomatic_complexity(root)
+
+            "variable_declarations": (
+                count_variable_declarations(root)
+            ),
+
+            "max_nesting_depth": (
+                calculate_nesting_depth(root)
+            ),
+
+            "cyclomatic_complexity": (
+                calculate_cyclomatic_complexity(root)
+            )
         },
 
         "functions": analyze_functions(root),

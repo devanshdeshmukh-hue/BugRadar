@@ -28,7 +28,9 @@ from analyzer.ast_metrics import (
 # TREE-SITTER C++ LANGUAGE SETUP
 # ==========================================
 
-CPP_LANGUAGE = Language(tree_sitter_cpp.language())
+CPP_LANGUAGE = Language(
+    tree_sitter_cpp.language()
+)
 
 parser = Parser(CPP_LANGUAGE)
 
@@ -38,7 +40,10 @@ parser = Parser(CPP_LANGUAGE)
 # ==========================================
 
 def parse_code(code):
-    tree = parser.parse(code.encode("utf-8"))
+
+    tree = parser.parse(
+        code.encode("utf-8")
+    )
 
     return tree
 
@@ -48,11 +53,14 @@ def parse_code(code):
 # ==========================================
 
 def analyze_code(code):
+
     tree = parse_code(code)
 
     root = tree.root_node
 
-    report = generate_analysis_report(root)
+    report = generate_analysis_report(
+        root
+    )
 
     return report
 
@@ -63,9 +71,13 @@ def analyze_code(code):
 
 file_path = "examples/sample.cpp"
 
-code = read_file(file_path)
+code = read_file(
+    file_path
+)
 
-report = analyze_code(code)
+report = analyze_code(
+    code
+)
 
 
 # ==========================================
@@ -85,7 +97,10 @@ print("========================================")
 
 print()
 
-print("Syntax Errors:", report["syntax_errors"])
+print(
+    "Syntax Errors:",
+    report["syntax_errors"]
+)
 
 
 # ==========================================
@@ -95,10 +110,16 @@ print("Syntax Errors:", report["syntax_errors"])
 print()
 
 print("Metrics")
+
 print("----------------------------------------")
 
 for metric, value in report["metrics"].items():
-    print(metric, ":", value)
+
+    print(
+        metric,
+        ":",
+        value
+    )
 
 
 # ==========================================
@@ -108,19 +129,37 @@ for metric, value in report["metrics"].items():
 print()
 
 print("Function Analysis")
+
 print("----------------------------------------")
 
 for function in report["functions"]:
 
     print()
 
-    print("Function:", function["name"])
+    print(
+        "Function:",
+        function["name"]
+    )
 
-    print("Start Line:", function["start_line"])
+    print(
+        "Start Line:",
+        function["start_line"]
+    )
 
-    print("End Line:", function["end_line"])
+    print(
+        "End Line:",
+        function["end_line"]
+    )
 
-    print("Lines:", function["lines"])
+    print(
+        "Lines:",
+        function["lines"]
+    )
+
+    print(
+        "Parameters:",
+        function["parameters"]
+    )
 
     print(
         "Cyclomatic Complexity:",
@@ -140,17 +179,27 @@ for function in report["functions"]:
 print()
 
 print("Class / Struct Analysis")
+
 print("----------------------------------------")
 
 for item in report["classes"]:
 
     print()
 
-    print("Type:", item["type"])
+    print(
+        "Type:",
+        item["type"]
+    )
 
-    print("Name:", item["name"])
+    print(
+        "Name:",
+        item["name"]
+    )
 
-    print("Start Line:", item["start_line"])
+    print(
+        "Start Line:",
+        item["start_line"]
+    )
 
 
 # ==========================================
@@ -160,11 +209,15 @@ for item in report["classes"]:
 print()
 
 print("Function Calls")
+
 print("----------------------------------------")
 
 for call in report["calls"]:
 
-    print("Called Function:", call)
+    print(
+        "Called Function:",
+        call
+    )
 
 
 # ==========================================
@@ -174,11 +227,15 @@ for call in report["calls"]:
 print()
 
 print("Variable Analysis")
+
 print("----------------------------------------")
 
 for variable in report["variables"]:
 
-    print("Variable:", variable)
+    print(
+        "Variable:",
+        variable
+    )
 
 
 # ==========================================
