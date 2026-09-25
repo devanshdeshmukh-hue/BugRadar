@@ -79,7 +79,8 @@ def calculate_cyclomatic_complexity(node):
         "if_statement",
         "for_statement",
         "while_statement",
-        "case_statement"
+        "case_statement",
+        "conditional_expression",
     ]
 
     logical_operators = [
