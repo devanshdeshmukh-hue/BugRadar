@@ -24,7 +24,6 @@ int calculateGrade(int marks)
 
 int main()
 {
-    // Get marks from user
     int marks;
 
     cout << "Enter marks: ";
@@ -34,6 +33,26 @@ int main()
 
     // Test ternary operator
     int result = (marks >= 40) ? 1 : 0;
+
+    // Test switch statement
+    switch (grade)
+    {
+        case 1:
+            cout << "Excellent";
+            break;
+
+        case 2:
+            cout << "Very Good";
+            break;
+
+        case 3:
+            cout << "Good";
+            break;
+
+        default:
+            cout << "Needs Improvement";
+            break;
+    }
 
     cout << "Grade: " << grade;
     cout << "Result: " << result;

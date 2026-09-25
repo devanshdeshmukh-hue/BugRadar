@@ -33,6 +33,9 @@ def count_for_loops(root):
 def count_while_loops(root):
     return count_node_type(root, "while_statement")
 
+def count_switch_statements(root):
+    return count_node_type(root, "switch_statement")
+
 
 def count_return_statements(root):
     return count_node_type(root, "return_statement")
@@ -431,6 +434,8 @@ def generate_analysis_report(root):
             "for_loops": count_for_loops(root),
 
             "while_loops": count_while_loops(root),
+
+            "switch_statements": count_switch_statements(root),
 
             "return_statements": count_return_statements(root),
 

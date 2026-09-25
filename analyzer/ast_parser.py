@@ -8,6 +8,7 @@ from analyzer.ast_metrics import (
     count_if_statements,
     count_for_loops,
     count_while_loops,
+    count_switch_statements,
     count_return_statements,
     calculate_nesting_depth,
     calculate_cyclomatic_complexity,
