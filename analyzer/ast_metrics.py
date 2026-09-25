@@ -82,6 +82,29 @@ def calculate_cyclomatic_complexity(node):
         "case_statement"
     ]
 
+    logical_operators = [
+        "&&",
+        "||"
+    ]
+
+    def count_decisions(current_node):
+        count = 0
+
+        if current_node.type in decision_nodes:
+            count += 1
+
+        if current_node.type in logical_operators:
+            count += 1
+
+        for child in current_node.children:
+            count += count_decisions(child)
+
+        return count
+
+    complexity += count_decisions(node)
+
+    return complexity
+
     def count_decisions(current_node):
         count = 0
 
