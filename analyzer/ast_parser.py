@@ -4,23 +4,6 @@ import tree_sitter_cpp
 from analyzer.code_reader import read_file
 
 from analyzer.ast_metrics import (
-    count_functions,
-    count_if_statements,
-    count_for_loops,
-    count_while_loops,
-    count_switch_statements,
-    count_return_statements,
-    calculate_nesting_depth,
-    calculate_cyclomatic_complexity,
-    analyze_functions,
-    count_classes,
-    count_structs,
-    analyze_classes,
-    count_function_calls,
-    analyze_function_calls,
-    count_variable_declarations,
-    analyze_variable_declarations,
-    count_syntax_errors,
     generate_analysis_report
 )
 
@@ -98,10 +81,7 @@ print("========================================")
 
 print()
 
-print(
-    "Syntax Errors:",
-    report["syntax_errors"]
-)
+print("Syntax Errors:", report["syntax_errors"])
 
 
 # ==========================================
@@ -163,8 +143,8 @@ for function in report["functions"]:
     )
 
     print(
-    "Function Calls:",
-    function["function_calls"]
+        "Function Calls:",
+        function["function_calls"]
     )
 
     print(
@@ -175,6 +155,11 @@ for function in report["functions"]:
     print(
         "Nesting Depth:",
         function["nesting_depth"]
+    )
+
+    print(
+        "Recursive:",
+        function["recursive"]
     )
 
 
@@ -241,6 +226,68 @@ for variable in report["variables"]:
     print(
         "Variable:",
         variable
+    )
+
+
+# ==========================================
+# INCLUDE ANALYSIS
+# ==========================================
+
+print()
+
+print("Include / Header Analysis")
+
+print("----------------------------------------")
+
+for include in report["includes"]:
+
+    print(
+        "Include:",
+        include
+    )
+
+
+# ==========================================
+# OPERATOR ANALYSIS
+# ==========================================
+
+print()
+
+print("Operator Analysis")
+
+print("----------------------------------------")
+
+if report["operators"]:
+
+    for operator, count in report["operators"].items():
+
+        print(
+            operator,
+            ":",
+            count
+        )
+
+else:
+
+    print("No operators detected.")
+
+
+# ==========================================
+# CONTROL-FLOW ANALYSIS
+# ==========================================
+
+print()
+
+print("Control-Flow Analysis")
+
+print("----------------------------------------")
+
+for statement, count in report["control_flow"].items():
+
+    print(
+        statement,
+        ":",
+        count
     )
 
 

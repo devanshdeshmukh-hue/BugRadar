@@ -33,12 +33,25 @@ def count_for_loops(root):
 def count_while_loops(root):
     return count_node_type(root, "while_statement")
 
+
 def count_switch_statements(root):
     return count_node_type(root, "switch_statement")
 
 
+def count_case_statements(root):
+    return count_node_type(root, "case_statement")
+
+
 def count_return_statements(root):
     return count_node_type(root, "return_statement")
+
+
+def count_break_statements(root):
+    return count_node_type(root, "break_statement")
+
+
+def count_continue_statements(root):
+    return count_node_type(root, "continue_statement")
 
 
 # ==========================================
@@ -48,12 +61,14 @@ def count_return_statements(root):
 def calculate_nesting_depth(node, current_depth=0):
     max_depth = current_depth
 
-    if node.type in [
+    nesting_nodes = [
         "if_statement",
         "for_statement",
         "while_statement",
         "switch_statement"
-    ]:
+    ]
+
+    if node.type in nesting_nodes:
         current_depth += 1
 
         if current_depth > max_depth:
@@ -83,7 +98,7 @@ def calculate_cyclomatic_complexity(node):
         "for_statement",
         "while_statement",
         "case_statement",
-        "conditional_expression",
+        "conditional_expression"
     ]
 
     logical_operators = [
@@ -98,21 +113,6 @@ def calculate_cyclomatic_complexity(node):
             count += 1
 
         if current_node.type in logical_operators:
-            count += 1
-
-        for child in current_node.children:
-            count += count_decisions(child)
-
-        return count
-
-    complexity += count_decisions(node)
-
-    return complexity
-
-    def count_decisions(current_node):
-        count = 0
-
-        if current_node.type in decision_nodes:
             count += 1
 
         for child in current_node.children:
@@ -150,7 +150,9 @@ def find_identifier(node):
 # ==========================================
 
 def count_function_parameters(node):
-    declarator = node.child_by_field_name("declarator")
+    declarator = node.child_by_field_name(
+        "declarator"
+    )
 
     if declarator is None:
         return 0
@@ -185,7 +187,7 @@ def count_function_parameters(node):
 
 
 # ==========================================
-# FUNCTION ANALYSIS
+# FUNCTION-LEVEL CALL COUNT
 # ==========================================
 
 def count_calls_inside_function(node):
@@ -203,6 +205,47 @@ def count_calls_inside_function(node):
     visit(node)
 
     return count
+
+
+# ==========================================
+# RECURSIVE FUNCTION DETECTION
+# ==========================================
+
+def is_recursive_function(node, function_name):
+    recursive = False
+
+    if function_name is None:
+        return False
+
+    def visit(current_node):
+        nonlocal recursive
+
+        if current_node.type == "call_expression":
+
+            function_node = current_node.child_by_field_name(
+                "function"
+            )
+
+            if function_node is not None:
+
+                called_function = (
+                    function_node.text.decode("utf-8")
+                )
+
+                if called_function == function_name:
+                    recursive = True
+
+        for child in current_node.children:
+            visit(child)
+
+    visit(node)
+
+    return recursive
+
+
+# ==========================================
+# FUNCTION ANALYSIS
+# ==========================================
 
 def analyze_functions(root):
     functions = []
@@ -235,10 +278,17 @@ def analyze_functions(root):
 
             end_line = node.end_point[0] + 1
 
-            function_lines = end_line - start_line + 1
+            function_lines = (
+                end_line - start_line + 1
+            )
 
             call_count = count_calls_inside_function(
                 node
+            )
+
+            recursive = is_recursive_function(
+                node,
+                function_name
             )
 
             functions.append({
@@ -249,7 +299,8 @@ def analyze_functions(root):
                 "parameters": parameter_count,
                 "complexity": complexity,
                 "nesting_depth": nesting_depth,
-                "function_calls": call_count
+                "function_calls": call_count,
+                "recursive": recursive
             })
 
         for child in node.children:
@@ -437,6 +488,107 @@ def count_syntax_errors(root):
 
 
 # ==========================================
+# INCLUDE / HEADER ANALYSIS
+# ==========================================
+
+def analyze_includes(root):
+    includes = []
+
+    def visit(node):
+
+        if node.type == "preproc_include":
+
+            text = node.text.decode(
+                "utf-8"
+            ).strip()
+
+            if text.startswith("#include"):
+
+                header = text[
+                    len("#include"):
+                ].strip()
+
+                includes.append(header)
+
+        for child in node.children:
+            visit(child)
+
+    visit(root)
+
+    return includes
+
+
+# ==========================================
+# OPERATOR ANALYSIS
+# ==========================================
+
+def analyze_operators(root):
+    operators = {}
+
+    operator_types = {
+        "+",
+        "-",
+        "*",
+        "/",
+        "%",
+        "=",
+        "==",
+        "!=",
+        "<",
+        ">",
+        "<=",
+        ">=",
+        "&&",
+        "||",
+        "!",
+        "++",
+        "--",
+        "+=",
+        "-=",
+        "*=",
+        "/=",
+        "%=",
+        "&",
+        "|",
+        "^",
+        "<<",
+        ">>"
+    }
+
+    def visit(node):
+
+        if node.type in operator_types:
+
+            operators[node.type] = (
+                operators.get(node.type, 0) + 1
+            )
+
+        for child in node.children:
+            visit(child)
+
+    visit(root)
+
+    return operators
+
+
+# ==========================================
+# CONTROL-FLOW ANALYSIS
+# ==========================================
+
+def analyze_control_flow(root):
+    return {
+        "if": count_if_statements(root),
+        "for": count_for_loops(root),
+        "while": count_while_loops(root),
+        "switch": count_switch_statements(root),
+        "case": count_case_statements(root),
+        "return": count_return_statements(root),
+        "break": count_break_statements(root),
+        "continue": count_continue_statements(root)
+    }
+
+
+# ==========================================
 # COMPLETE STRUCTURED ANALYSIS REPORT
 # ==========================================
 
@@ -456,15 +608,33 @@ def generate_analysis_report(root):
 
             "while_loops": count_while_loops(root),
 
-            "switch_statements": count_switch_statements(root),
+            "switch_statements": (
+                count_switch_statements(root)
+            ),
 
-            "return_statements": count_return_statements(root),
+            "case_statements": (
+                count_case_statements(root)
+            ),
+
+            "return_statements": (
+                count_return_statements(root)
+            ),
+
+            "break_statements": (
+                count_break_statements(root)
+            ),
+
+            "continue_statements": (
+                count_continue_statements(root)
+            ),
 
             "classes": count_classes(root),
 
             "structs": count_structs(root),
 
-            "function_calls": count_function_calls(root),
+            "function_calls": (
+                count_function_calls(root)
+            ),
 
             "variable_declarations": (
                 count_variable_declarations(root)
@@ -485,7 +655,13 @@ def generate_analysis_report(root):
 
         "calls": analyze_function_calls(root),
 
-        "variables": analyze_variable_declarations(root)
+        "variables": analyze_variable_declarations(root),
+
+        "includes": analyze_includes(root),
+
+        "operators": analyze_operators(root),
+
+        "control_flow": analyze_control_flow(root)
     }
 
     return report
