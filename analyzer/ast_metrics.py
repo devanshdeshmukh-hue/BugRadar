@@ -188,6 +188,22 @@ def count_function_parameters(node):
 # FUNCTION ANALYSIS
 # ==========================================
 
+def count_calls_inside_function(node):
+    count = 0
+
+    def visit(current_node):
+        nonlocal count
+
+        if current_node.type == "call_expression":
+            count += 1
+
+        for child in current_node.children:
+            visit(child)
+
+    visit(node)
+
+    return count
+
 def analyze_functions(root):
     functions = []
 
@@ -221,6 +237,10 @@ def analyze_functions(root):
 
             function_lines = end_line - start_line + 1
 
+            call_count = count_calls_inside_function(
+                node
+            )
+
             functions.append({
                 "name": function_name,
                 "start_line": start_line,
@@ -228,7 +248,8 @@ def analyze_functions(root):
                 "lines": function_lines,
                 "parameters": parameter_count,
                 "complexity": complexity,
-                "nesting_depth": nesting_depth
+                "nesting_depth": nesting_depth,
+                "function_calls": call_count
             })
 
         for child in node.children:

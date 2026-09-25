@@ -163,6 +163,11 @@ for function in report["functions"]:
     )
 
     print(
+    "Function Calls:",
+    function["function_calls"]
+    )
+
+    print(
         "Cyclomatic Complexity:",
         function["complexity"]
     )
