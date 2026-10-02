@@ -38,7 +38,9 @@ def parse_code(code):
 
 def analyze_code(code):
 
-    tree = parse_code(code)
+    tree = parse_code(
+        code
+    )
 
     root = tree.root_node
 
@@ -50,253 +52,283 @@ def analyze_code(code):
 
 
 # ==========================================
-# MAIN PROGRAM
+# STANDALONE AST REPORT
 # ==========================================
 
-file_path = "examples/sample.cpp"
+def print_ast_report(report):
 
-code = read_file(
-    file_path
-)
+    print()
 
-report = analyze_code(
-    code
-)
+    print("========================================")
+    print("          BUGRADAR AST REPORT")
+    print("========================================")
 
 
-# ==========================================
-# DISPLAY BUGRADAR REPORT
-# ==========================================
-
-print()
-
-print("========================================")
-print("          BUGRADAR AST REPORT")
-print("========================================")
-
-
-# ==========================================
-# SYNTAX ERRORS
-# ==========================================
-
-print()
-
-print("Syntax Errors:", report["syntax_errors"])
-
-
-# ==========================================
-# GENERAL METRICS
-# ==========================================
-
-print()
-
-print("Metrics")
-
-print("----------------------------------------")
-
-for metric, value in report["metrics"].items():
-
-    print(
-        metric,
-        ":",
-        value
-    )
-
-
-# ==========================================
-# FUNCTION ANALYSIS
-# ==========================================
-
-print()
-
-print("Function Analysis")
-
-print("----------------------------------------")
-
-for function in report["functions"]:
+    # ======================================
+    # SYNTAX ERRORS
+    # ======================================
 
     print()
 
     print(
-        "Function:",
-        function["name"]
-    )
-
-    print(
-        "Start Line:",
-        function["start_line"]
-    )
-
-    print(
-        "End Line:",
-        function["end_line"]
-    )
-
-    print(
-        "Lines:",
-        function["lines"]
-    )
-
-    print(
-        "Parameters:",
-        function["parameters"]
-    )
-
-    print(
-        "Function Calls:",
-        function["function_calls"]
-    )
-
-    print(
-        "Cyclomatic Complexity:",
-        function["complexity"]
-    )
-
-    print(
-        "Nesting Depth:",
-        function["nesting_depth"]
-    )
-
-    print(
-        "Recursive:",
-        function["recursive"]
+        "Syntax Errors:",
+        report["syntax_errors"]
     )
 
 
-# ==========================================
-# CLASS / STRUCT ANALYSIS
-# ==========================================
-
-print()
-
-print("Class / Struct Analysis")
-
-print("----------------------------------------")
-
-for item in report["classes"]:
+    # ======================================
+    # GENERAL METRICS
+    # ======================================
 
     print()
 
-    print(
-        "Type:",
-        item["type"]
-    )
+    print("Metrics")
 
-    print(
-        "Name:",
-        item["name"]
-    )
+    print("----------------------------------------")
 
-    print(
-        "Start Line:",
-        item["start_line"]
-    )
-
-
-# ==========================================
-# FUNCTION CALL ANALYSIS
-# ==========================================
-
-print()
-
-print("Function Calls")
-
-print("----------------------------------------")
-
-for call in report["calls"]:
-
-    print(
-        "Called Function:",
-        call
-    )
-
-
-# ==========================================
-# VARIABLE ANALYSIS
-# ==========================================
-
-print()
-
-print("Variable Analysis")
-
-print("----------------------------------------")
-
-for variable in report["variables"]:
-
-    print(
-        "Variable:",
-        variable
-    )
-
-
-# ==========================================
-# INCLUDE ANALYSIS
-# ==========================================
-
-print()
-
-print("Include / Header Analysis")
-
-print("----------------------------------------")
-
-for include in report["includes"]:
-
-    print(
-        "Include:",
-        include
-    )
-
-
-# ==========================================
-# OPERATOR ANALYSIS
-# ==========================================
-
-print()
-
-print("Operator Analysis")
-
-print("----------------------------------------")
-
-if report["operators"]:
-
-    for operator, count in report["operators"].items():
+    for metric, value in (
+        report["metrics"].items()
+    ):
 
         print(
-            operator,
+            metric,
+            ":",
+            value
+        )
+
+
+    # ======================================
+    # FUNCTION ANALYSIS
+    # ======================================
+
+    print()
+
+    print("Function Analysis")
+
+    print("----------------------------------------")
+
+    for function in report["functions"]:
+
+        print()
+
+        print(
+            "Function:",
+            function["name"]
+        )
+
+        print(
+            "Start Line:",
+            function["start_line"]
+        )
+
+        print(
+            "End Line:",
+            function["end_line"]
+        )
+
+        print(
+            "Lines:",
+            function["lines"]
+        )
+
+        print(
+            "Parameters:",
+            function["parameters"]
+        )
+
+        print(
+            "Function Calls:",
+            function["function_calls"]
+        )
+
+        print(
+            "Cyclomatic Complexity:",
+            function["complexity"]
+        )
+
+        print(
+            "Nesting Depth:",
+            function["nesting_depth"]
+        )
+
+        print(
+            "Recursive:",
+            function["recursive"]
+        )
+
+
+    # ======================================
+    # CLASS / STRUCT ANALYSIS
+    # ======================================
+
+    print()
+
+    print("Class / Struct Analysis")
+
+    print("----------------------------------------")
+
+    for item in report["classes"]:
+
+        print()
+
+        print(
+            "Type:",
+            item["type"]
+        )
+
+        print(
+            "Name:",
+            item["name"]
+        )
+
+        print(
+            "Start Line:",
+            item["start_line"]
+        )
+
+
+    # ======================================
+    # FUNCTION CALL ANALYSIS
+    # ======================================
+
+    print()
+
+    print("Function Calls")
+
+    print("----------------------------------------")
+
+    for call in report["calls"]:
+
+        print(
+            "Called Function:",
+            call
+        )
+
+
+    # ======================================
+    # VARIABLE ANALYSIS
+    # ======================================
+
+    print()
+
+    print("Variable Analysis")
+
+    print("----------------------------------------")
+
+    for variable in report["variables"]:
+
+        print(
+            "Variable:",
+            variable
+        )
+
+
+    # ======================================
+    # INCLUDE ANALYSIS
+    # ======================================
+
+    print()
+
+    print("Include / Header Analysis")
+
+    print("----------------------------------------")
+
+    for include in report["includes"]:
+
+        print(
+            "Include:",
+            include
+        )
+
+
+    # ======================================
+    # OPERATOR ANALYSIS
+    # ======================================
+
+    print()
+
+    print("Operator Analysis")
+
+    print("----------------------------------------")
+
+    if report["operators"]:
+
+        for operator, count in (
+            report["operators"].items()
+        ):
+
+            print(
+                operator,
+                ":",
+                count
+            )
+
+    else:
+
+        print(
+            "No operators detected."
+        )
+
+
+    # ======================================
+    # CONTROL-FLOW ANALYSIS
+    # ======================================
+
+    print()
+
+    print("Control-Flow Analysis")
+
+    print("----------------------------------------")
+
+    for statement, count in (
+        report["control_flow"].items()
+    ):
+
+        print(
+            statement,
             ":",
             count
         )
 
-else:
 
-    print("No operators detected.")
+    # ======================================
+    # END REPORT
+    # ======================================
+
+    print()
+
+    print("========================================")
+    print("       END OF BUGRADAR REPORT")
+    print("========================================")
 
 
 # ==========================================
-# CONTROL-FLOW ANALYSIS
+# STANDALONE EXECUTION
 # ==========================================
 
-print()
+def main():
 
-print("Control-Flow Analysis")
+    file_path = (
+        "examples/sample.cpp"
+    )
 
-print("----------------------------------------")
+    code = read_file(
+        file_path
+    )
 
-for statement, count in report["control_flow"].items():
+    report = analyze_code(
+        code
+    )
 
-    print(
-        statement,
-        ":",
-        count
+    print_ast_report(
+        report
     )
 
 
 # ==========================================
-# END OF REPORT
+# PYTHON ENTRY POINT
 # ==========================================
 
-print()
+if __name__ == "__main__":
 
-print("========================================")
-print("       END OF BUGRADAR REPORT")
-print("========================================")
+    main()
