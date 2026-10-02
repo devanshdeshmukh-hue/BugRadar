@@ -43,7 +43,7 @@ def test_cli_version():
 
     assert result.returncode == 0
 
-    assert "BugRadar 0.1.0" in result.stdout
+    assert "BugRadar 0.2.0" in result.stdout
 
 
 def test_cli_analyze():

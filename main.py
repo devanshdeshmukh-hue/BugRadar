@@ -16,12 +16,17 @@ from analyzer.risk_engine import (
     generate_risk_report
 )
 
+from analyzer.git_analyzer import (
+    generate_git_report,
+    print_git_report
+)
+
 
 # ==========================================
 # BUGRADAR VERSION
 # ==========================================
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 
 # ==========================================
@@ -59,16 +64,22 @@ def print_section(title):
 # VALIDATE FILE
 # ==========================================
 
-def validate_file(file_path):
+def validate_file(
+    file_path
+):
 
-    if not os.path.exists(file_path):
+    if not os.path.exists(
+        file_path
+    ):
 
         raise FileNotFoundError(
             f"File not found: {file_path}"
         )
 
 
-    if not os.path.isfile(file_path):
+    if not os.path.isfile(
+        file_path
+    ):
 
         raise ValueError(
             f"Path is not a file: {file_path}"
@@ -76,17 +87,29 @@ def validate_file(file_path):
 
 
     extension = (
-        os.path.splitext(file_path)[1]
-        .lower()
+        os.path.splitext(
+            file_path
+        )[1].lower()
     )
 
 
     if extension not in [
-        ".cpp",
+
+        ".c",
+
         ".cc",
+
+        ".cpp",
+
         ".cxx",
+
         ".h",
-        ".hpp"
+
+        ".hh",
+
+        ".hpp",
+
+        ".hxx"
     ]:
 
         raise ValueError(
@@ -247,7 +270,7 @@ def print_complexity_report(
         )
 
         print(
-            "Function Classification :",
+            "Function Classification:",
             most_complex[
                 "classification"
             ]
@@ -572,6 +595,20 @@ def create_parser():
     )
 
 
+    # ======================================
+    # GIT COMMAND
+    # ======================================
+
+    subparsers.add_parser(
+
+        "git",
+
+        help=(
+            "Analyze Git repository changes."
+        )
+    )
+
+
     return parser
 
 
@@ -585,6 +622,10 @@ def main():
 
     args = parser.parse_args()
 
+
+    # ======================================
+    # ANALYZE COMMAND
+    # ======================================
 
     if args.command == "analyze":
 
@@ -624,6 +665,41 @@ def main():
 
             sys.exit(1)
 
+
+    # ======================================
+    # GIT COMMAND
+    # ======================================
+
+    elif args.command == "git":
+
+        try:
+
+            report = (
+                generate_git_report()
+            )
+
+
+            print_git_report(
+                report
+            )
+
+        except Exception as error:
+
+            print()
+
+            print(
+                "Git analysis error:",
+                error
+            )
+
+            print()
+
+            sys.exit(1)
+
+
+    # ======================================
+    # NO COMMAND
+    # ======================================
 
     else:
 
