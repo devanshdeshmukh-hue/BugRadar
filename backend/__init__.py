@@ -1,0 +1,3 @@
+"""
+BugRadar Backend Package.
+"""
