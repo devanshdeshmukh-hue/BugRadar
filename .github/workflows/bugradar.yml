@@ -1,0 +1,101 @@
+name: BugRadar CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+  pull_request:
+    branches:
+      - main
+      - master
+
+  workflow_dispatch:
+
+
+jobs:
+
+  test-and-analyze:
+
+    name: Test and Analyze BugRadar
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ==========================================
+      # CHECKOUT SOURCE CODE
+      # ==========================================
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # ==========================================
+      # SETUP PYTHON
+      # ==========================================
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+
+      # ==========================================
+      # INSTALL DEPENDENCIES
+      # ==========================================
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+
+      # ==========================================
+      # VERIFY PYTHON
+      # ==========================================
+
+      - name: Check Python version
+        run: |
+          python --version
+
+
+      # ==========================================
+      # RUN TESTS
+      # ==========================================
+
+      - name: Run test suite
+        run: |
+          python -m pytest -q
+
+
+      # ==========================================
+      # RUN BUGRADAR ANALYSIS
+      # ==========================================
+
+      - name: Run BugRadar analysis
+        run: |
+          python .github/scripts/analyze_project.py
+
+
+      # ==========================================
+      # SHOW GIT STATUS
+      # ==========================================
+
+      - name: Show repository status
+        run: |
+          git status --short
+
+
+      # ==========================================
+      # SUCCESS MESSAGE
+      # ==========================================
+
+      - name: BugRadar CI completed
+        run: |
+          echo "========================================"
+          echo "       BUGRADAR CI PASSED"
+          echo "========================================"
+          echo "Tests and analysis completed successfully."
