@@ -1,51 +1,57 @@
-name: BugRadar CI
+name: BugRadar Analysis
 
 on:
   push:
     branches:
       - main
-      - master
 
   pull_request:
-    branches:
-      - main
-      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
 
   workflow_dispatch:
 
 
+permissions:
+  contents: read
+  pull-requests: write
+
+
 jobs:
 
-  test-and-analyze:
+  bugradar:
 
-    name: Test and Analyze BugRadar
+    name: BugRadar Analysis
 
     runs-on: ubuntu-latest
 
     steps:
 
-      # ==========================================
-      # CHECKOUT SOURCE CODE
-      # ==========================================
+      # ======================================
+      # CHECKOUT REPOSITORY
+      # ======================================
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
 
-      # ==========================================
+      # ======================================
       # SETUP PYTHON
-      # ==========================================
+      # ======================================
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
-          cache: "pip"
+          python-version: "3.11"
 
 
-      # ==========================================
+      # ======================================
       # INSTALL DEPENDENCIES
-      # ==========================================
+      # ======================================
 
       - name: Install dependencies
         run: |
@@ -53,49 +59,25 @@ jobs:
           pip install -r requirements.txt
 
 
-      # ==========================================
-      # VERIFY PYTHON
-      # ==========================================
+      # ======================================
+      # RUN FULL PROJECT ANALYSIS
+      # ======================================
 
-      - name: Check Python version
-        run: |
-          python --version
-
-
-      # ==========================================
-      # RUN TESTS
-      # ==========================================
-
-      - name: Run test suite
-        run: |
-          python -m pytest -q
-
-
-      # ==========================================
-      # RUN BUGRADAR ANALYSIS
-      # ==========================================
-
-      - name: Run BugRadar analysis
+      - name: Run BugRadar project analysis
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           python .github/scripts/analyze_project.py
 
 
-      # ==========================================
-      # SHOW GIT STATUS
-      # ==========================================
+      # ======================================
+      # RUN PR ANALYSIS
+      # ======================================
 
-      - name: Show repository status
+      - name: Run BugRadar PR analysis
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: |
-          git status --short
-
-
-      # ==========================================
-      # SUCCESS MESSAGE
-      # ==========================================
-
-      - name: BugRadar CI completed
-        run: |
-          echo "========================================"
-          echo "       BUGRADAR CI PASSED"
-          echo "========================================"
-          echo "Tests and analysis completed successfully."
+          python .github/scripts/pr_analyzer.py
